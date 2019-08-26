@@ -51,6 +51,10 @@ public class Utils {
         return Boolean.valueOf(RDTApplication.getInstance().getContext().allSharedPreferences().getPreference(IS_IMG_SYNC_ENABLED));
     }
 
+    public static void setImageSyncEnabledStatus(boolean isEnabled) {
+        RDTApplication.getInstance().getContext().allSharedPreferences().savePreference(IS_IMG_SYNC_ENABLED, String.valueOf(isEnabled));
+    }
+
     public static long getFlexValue(long value) {
         final long MINIMUM_JOB_FLEX_VALUE = 1;
         long minutes = MINIMUM_JOB_FLEX_VALUE;

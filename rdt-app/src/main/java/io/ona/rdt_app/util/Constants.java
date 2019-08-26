@@ -64,4 +64,10 @@ public interface Constants {
         String TEST_PV_RESULT = "test_pv_result";
         String TEST_PF_RESULT = "test_pf_result";
     }
+
+    interface GlobalConfig {
+        String SYNC_CONNECT_TIMEOUT = "sync_connect_timeout";
+        String SYNC_READ_TIMEOUT = "sync_read_timeout";
+        String KILL_IMG_SYNC = "kill_img_sync";
+    }
 }

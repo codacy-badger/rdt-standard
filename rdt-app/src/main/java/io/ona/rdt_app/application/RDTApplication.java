@@ -7,6 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.evernote.android.job.JobManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +38,9 @@ import timber.log.Timber;
 
 import static com.vijay.jsonwizard.constants.JsonFormConstants.VALUE;
 import static io.ona.rdt_app.util.Constants.GLOBAL_CONFIGS;
+import static io.ona.rdt_app.util.Constants.GlobalConfig.KILL_IMG_SYNC;
+import static io.ona.rdt_app.util.Constants.GlobalConfig.SYNC_CONNECT_TIMEOUT;
+import static io.ona.rdt_app.util.Constants.GlobalConfig.SYNC_READ_TIMEOUT;
 import static io.ona.rdt_app.util.Constants.IS_IMG_SYNC_ENABLED;
 import static io.ona.rdt_app.util.Constants.PATIENTS;
 import static org.smartregister.AllConstants.SETTINGS;
@@ -80,7 +84,7 @@ public class RDTApplication extends DrishtiApplication {
 
         AllSharedPreferences sharedPreferences = getContext().allSharedPreferences();
         if (sharedPreferences.getPreference(IS_IMG_SYNC_ENABLED).isEmpty()) {
-            sharedPreferences.savePreference(IS_IMG_SYNC_ENABLED, String.valueOf(true));
+            Utils.setImageSyncEnabledStatus(true);
         }
     }
 
@@ -156,6 +160,7 @@ public class RDTApplication extends DrishtiApplication {
     public void processGlobalConfigs() {
         Setting globalSettings = getSettingsRepository().getSetting(GLOBAL_CONFIGS);
         populateGlobalConfigs(globalSettings);
+        processSyncConfigs();
     }
 
     private void populateGlobalConfigs(@NonNull Setting setting) {
@@ -174,6 +179,25 @@ public class RDTApplication extends DrishtiApplication {
             }
         } catch (JSONException e) {
             Timber.e(e);
+        }
+    }
+
+    private void processSyncConfigs() {
+        RDTSyncConfiguration syncConfiguration = (RDTSyncConfiguration) CoreLibrary.getInstance().getSyncConfiguration();
+
+        String connectTimeout = getGlobalConfigs().get(SYNC_CONNECT_TIMEOUT);
+        if (!StringUtils.isBlank(connectTimeout)) {
+            syncConfiguration.setConnectTimeout(Integer.valueOf(connectTimeout));
+        }
+
+        String readTimeout = getGlobalConfigs().get(SYNC_READ_TIMEOUT);
+        if (!StringUtils.isBlank(readTimeout)) {
+            syncConfiguration.setReadTimeout(Integer.valueOf(readTimeout));
+        }
+
+        String killImgSync = getGlobalConfigs().get(KILL_IMG_SYNC);
+        if (!StringUtils.isBlank(killImgSync)) {
+            Utils.setImageSyncEnabledStatus(Boolean.valueOf(killImgSync));
         }
     }
 
