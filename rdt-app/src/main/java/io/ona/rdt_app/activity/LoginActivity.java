@@ -10,6 +10,7 @@ import org.smartregister.view.activity.BaseLoginActivity;
 import org.smartregister.view.contract.BaseLoginContract;
 
 import io.ona.rdt_app.R;
+import io.ona.rdt_app.application.RDTApplication;
 import io.ona.rdt_app.presenter.LoginPresenter;
 
 /**
@@ -42,6 +43,7 @@ public class LoginActivity extends BaseLoginActivity implements BaseLoginContrac
         Intent intent = new Intent(this, PatientRegisterActivity.class);
         startActivity(intent);
         finish();
+        RDTApplication.getInstance().processGlobalConfigs();
     }
 
     @Override

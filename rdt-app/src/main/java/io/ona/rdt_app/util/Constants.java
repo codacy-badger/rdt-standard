@@ -31,6 +31,8 @@ public interface Constants {
     String EXPIRED_PAGE_ADDRESS = "expired_page_address";
     String SAVED_IMG_ID_AND_TIME_STAMP = "saved_img_id_and_time_stamp";
 
+    String GLOBAL_CONFIGS = "global_configs";
+
     interface Tags {
         String COUNTRY = "Country";
         String PROVINCE = "Province";

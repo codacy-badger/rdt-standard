@@ -1,20 +1,29 @@
 package io.ona.rdt_app.application;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.evernote.android.job.JobManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.CoreLibrary;
 import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.domain.Setting;
 import org.smartregister.location.helper.LocationHelper;
 import org.smartregister.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.repository.AllSettings;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.Repository;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.receiver.TimeChangedBroadcastReceiver;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
 import io.ona.rdt_app.BuildConfig;
@@ -24,9 +33,14 @@ import io.ona.rdt_app.repository.RDTRepository;
 import io.ona.rdt_app.util.Constants;
 import io.ona.rdt_app.util.RDTSyncConfiguration;
 import io.ona.rdt_app.util.Utils;
+import timber.log.Timber;
 
+import static com.vijay.jsonwizard.constants.JsonFormConstants.VALUE;
+import static io.ona.rdt_app.util.Constants.GLOBAL_CONFIGS;
 import static io.ona.rdt_app.util.Constants.IS_IMG_SYNC_ENABLED;
 import static io.ona.rdt_app.util.Constants.PATIENTS;
+import static org.smartregister.AllConstants.SETTINGS;
+import static org.smartregister.util.JsonFormUtils.KEY;
 import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logInfo;
 
@@ -37,6 +51,7 @@ public class RDTApplication extends DrishtiApplication {
 
     private static CommonFtsObject commonFtsObject;
     private String password;
+    private Map<String, String> globalConfigs;
 
     public static synchronized RDTApplication getInstance() {
         return (RDTApplication) mInstance;
@@ -47,6 +62,7 @@ public class RDTApplication extends DrishtiApplication {
         super.onCreate();
 
         mInstance = this;
+        globalConfigs = new HashMap<>();
         context = Context.getInstance();
         context.updateApplicationContext(getApplicationContext());
         context.updateCommonFtsObject(createCommonFtsObject());
@@ -131,5 +147,37 @@ public class RDTApplication extends DrishtiApplication {
 
     private static String[] getFtsSortFields() {
        return new String[]{Constants.DBConstants.NAME};
+    }
+
+    public AllSettings getSettingsRepository() {
+        return getInstance().getContext().allSettings();
+    }
+
+    public void processGlobalConfigs() {
+        Setting globalSettings = getSettingsRepository().getSetting(GLOBAL_CONFIGS);
+        populateGlobalConfigs(globalSettings);
+    }
+
+    private void populateGlobalConfigs(@NonNull Setting setting) {
+        if (setting == null) {
+            return;
+        }
+        try {
+            JSONArray settingsArray = new JSONObject(setting.getValue()).getJSONArray(SETTINGS);
+            for (int i = 0; i < settingsArray.length(); i++) {
+                JSONObject jsonObject = settingsArray.getJSONObject(i);
+                String value = jsonObject.optString(VALUE, null);
+                String key = jsonObject.optString(KEY, null);
+                if (value != null && key != null) {
+                    globalConfigs.put(key, value);
+                }
+            }
+        } catch (JSONException e) {
+            Timber.e(e);
+        }
+    }
+
+    public Map<String, String> getGlobalConfigs() {
+        return globalConfigs;
     }
 }
