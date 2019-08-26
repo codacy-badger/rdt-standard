@@ -12,6 +12,7 @@ import java.util.Date;
 import io.ona.rdt_app.BuildConfig;
 import io.ona.rdt_app.application.RDTApplication;
 import io.ona.rdt_app.job.ImageUploadSyncServiceJob;
+import io.ona.rdt_app.job.RDTSettingsSyncServiceJob;
 
 import static io.ona.rdt_app.util.Constants.IS_IMG_SYNC_ENABLED;
 
@@ -32,22 +33,17 @@ public class Utils {
     }
 
     public static void scheduleJobsPeriodically() {
+        RDTSettingsSyncServiceJob.scheduleJob(RDTSettingsSyncServiceJob.TAG, BuildConfig.SYNC_INTERVAL_MINUTES,
+                getFlexValue(BuildConfig.SYNC_INTERVAL_MINUTES));
         PullUniqueIdsServiceJob.scheduleJob(PullUniqueIdsServiceJob.TAG, BuildConfig.SYNC_INTERVAL_MINUTES,
                 getFlexValue(BuildConfig.SYNC_INTERVAL_MINUTES));
-
-        if (isImageSyncEnabled()) {
-            ImageUploadSyncServiceJob.scheduleJob(ImageUploadSyncServiceJob.TAG, BuildConfig.SYNC_INTERVAL_MINUTES,
-                            getFlexValue(BuildConfig.SYNC_INTERVAL_MINUTES));
-        }
         SyncServiceJob.scheduleJob(SyncServiceJob.TAG, BuildConfig.SYNC_INTERVAL_MINUTES,
                         getFlexValue(BuildConfig.SYNC_INTERVAL_MINUTES));
     }
 
     public static void scheduleJobsImmediately() {
+        RDTSettingsSyncServiceJob.scheduleJobImmediately(RDTSettingsSyncServiceJob.TAG);
         PullUniqueIdsServiceJob.scheduleJobImmediately(PullUniqueIdsServiceJob.TAG);
-        if (isImageSyncEnabled()) {
-            ImageUploadSyncServiceJob.scheduleJobImmediately(ImageUploadSyncServiceJob.TAG);
-        }
         SyncServiceJob.scheduleJobImmediately(SyncServiceJob.TAG);
     }
 
@@ -55,7 +51,7 @@ public class Utils {
         return Boolean.valueOf(RDTApplication.getInstance().getContext().allSharedPreferences().getPreference(IS_IMG_SYNC_ENABLED));
     }
 
-    private static long getFlexValue(long value) {
+    public static long getFlexValue(long value) {
         final long MINIMUM_JOB_FLEX_VALUE = 1;
         long minutes = MINIMUM_JOB_FLEX_VALUE;
         if (value > MINIMUM_JOB_FLEX_VALUE) {

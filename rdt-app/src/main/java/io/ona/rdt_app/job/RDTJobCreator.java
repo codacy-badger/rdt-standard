@@ -12,6 +12,8 @@ import org.smartregister.job.PullUniqueIdsServiceJob;
 import org.smartregister.job.SyncServiceJob;
 import org.smartregister.sync.intent.SyncIntentService;
 
+import io.ona.rdt_app.sync.RDTSettingsSyncIntentService;
+
 /**
  * Created by Vincent Karuri on 18/06/2019
  */
@@ -28,7 +30,9 @@ public class RDTJobCreator implements JobCreator {
             case ImageUploadSyncServiceJob.TAG:
                 return new ImageUploadServiceJob();
             case PullUniqueIdsServiceJob.TAG:
-                    return new PullUniqueIdsServiceJob();
+                return new PullUniqueIdsServiceJob();
+            case RDTSettingsSyncServiceJob.TAG:
+                return new RDTSettingsSyncServiceJob();
             default:
                 Log.w(TAG, tag + " is not declared in RevealJobCreator Job Creator");
                 return null;
